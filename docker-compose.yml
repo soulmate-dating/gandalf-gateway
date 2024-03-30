@@ -1,0 +1,85 @@
+version: '3.9'
+
+services:
+  gateway:
+    container_name: gateway
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - profiles
+      - auth
+    restart: unless-stopped
+    networks:
+      - gateway
+
+  auth:
+    container_name: auth
+    image: maxage/auth:master
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres-auth
+    restart: unless-stopped
+    networks:
+      - postgres-auth
+      - gateway
+
+  postgres-auth:
+    container_name: postgres_auth
+    image: postgres:latest
+    environment:
+      POSTGRES_DATABASE: glimpse_users
+      POSTGRES_USER: glimpse_users
+      POSTGRES_PASSWORD: password
+      POSTGRES_HOST_AUTH_METHOD: trust
+      PGDATA: /data/postgres
+      PGPORT: 5433
+    ports:
+      - "5433:5433"
+    volumes:
+      - /data/postgres
+      - ..\auth\internal\adapters\postgres\migrations\tables.up.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+    networks:
+      - postgres-auth
+
+  profiles:
+    container_name: profiles
+    image: maxage/profiles:master
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres-profiles
+    restart: unless-stopped
+    networks:
+      - postgres-profiles
+      - gateway
+
+  postgres-profiles:
+    container_name: postgres_profiles
+    image: postgres:latest
+    environment:
+      POSTGRES_DATABASE: glimpse_profiles
+      POSTGRES_USER: glimpse_profiles
+      POSTGRES_PASSWORD: password
+      POSTGRES_HOST_AUTH_METHOD: trust
+      PGDATA: /data/postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - /data/postgres
+      - ..\profiles\internal\adapters\postgres\migrations\tables.up.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+    networks:
+      - postgres-profiles
+
+networks:
+  postgres-auth:
+    driver: bridge
+  postgres-profiles:
+    driver: bridge
+  gateway:
+    driver: bridge
