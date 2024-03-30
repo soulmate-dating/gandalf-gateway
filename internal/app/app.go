@@ -3,7 +3,7 @@ package app
 import (
 	"fmt"
 	"github.com/soulmate-dating/gandalf-gateway/internal/app/clients/auth"
-	"github.com/soulmate-dating/gandalf-gateway/internal/app/clients/profile"
+	"github.com/soulmate-dating/gandalf-gateway/internal/app/clients/profiles"
 	"log"
 )
 
@@ -12,16 +12,16 @@ var (
 )
 
 type ServiceLocator interface {
-	Profiles() profile.ProfileServiceClient
+	Profiles() profiles.ProfileServiceClient
 	Auth() auth.AuthServiceClient
 }
 
 type locator struct {
-	profileServiceClient profile.ProfileServiceClient
+	profileServiceClient profiles.ProfileServiceClient
 	authServiceClient    auth.AuthServiceClient
 }
 
-func (l *locator) Profiles() profile.ProfileServiceClient {
+func (l *locator) Profiles() profiles.ProfileServiceClient {
 	return l.profileServiceClient
 }
 
@@ -34,9 +34,9 @@ func NewServiceLocator() ServiceLocator {
 	if err != nil {
 		log.Fatalf("could not connect to auth service: %s", err.Error())
 	}
-	profileServiceClient, err := profile.NewServiceClient()
+	profileServiceClient, err := profiles.NewServiceClient()
 	if err != nil {
-		log.Fatalf("could not connect to profile service: %s", err.Error())
+		log.Fatalf("could not connect to profiles service: %s", err.Error())
 	}
 	return &locator{
 		authServiceClient:    authServiceClient,

@@ -1,4 +1,4 @@
-package profile
+package profiles
 
 import (
 	"google.golang.org/grpc"

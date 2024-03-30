@@ -1,6 +1,6 @@
 package profiles
 
-import "github.com/soulmate-dating/gandalf-gateway/internal/app/clients/profile"
+import "github.com/soulmate-dating/gandalf-gateway/internal/app/clients/profiles"
 
 type Profile struct {
 	FirstName        string `json:"first_name,omitempty"`
@@ -17,7 +17,7 @@ type Profile struct {
 	Smokes           string `json:"smokes,omitempty"`
 }
 
-func NewProfile(p *profile.ProfileResponse) *Profile {
+func NewProfile(p *profiles.ProfileResponse) *Profile {
 	info := p.PersonalInfo
 	return &Profile{
 		FirstName:        info.FirstName,

@@ -1,13 +1,14 @@
 syntax = "proto3";
 
-package profile;
+package profiles;
 option go_package = "github.com/soulmate-dating/profiles/internal/ports/grpc";
 
 service ProfileService {
   rpc CreateProfile(CreateProfileRequest) returns (ProfileResponse) {}
   rpc GetProfile(GetProfileRequest) returns (ProfileResponse) {}
   rpc UpdateProfile(UpdateProfileRequest) returns (ProfileResponse) {}
-  rpc GetMultipleProfiles(GetMultipleProfilesRequest) returns (GetMultipleProfilesResponse) {}
+  rpc GetMultipleProfiles(GetMultipleProfilesRequest) returns (MultipleProfilesResponse) {}
+  rpc GetRandomProfilePreferredByUser(GetRandomProfilePreferredByUserRequest) returns (ProfileResponse) {}
 
   rpc GetPrompts(GetPromptsRequest) returns (PromptsResponse) {}
   rpc AddPrompts(AddPromptsRequest) returns (PromptsResponse) {}
@@ -92,9 +93,13 @@ message UpdatePromptsPositionsRequest {
 }
 
 message GetMultipleProfilesRequest {
-  repeated string user_ids = 1;
+  repeated string ids = 1;
 }
 
-message GetMultipleProfilesResponse {
+message MultipleProfilesResponse {
   repeated ProfileResponse profiles = 1;
+}
+
+message GetRandomProfilePreferredByUserRequest {
+  string user_id = 1;
 }
