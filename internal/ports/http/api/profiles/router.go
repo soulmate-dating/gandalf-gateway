@@ -12,4 +12,5 @@ func RegisterRoutes(g *echo.Group, locator app.ServiceLocator) {
 	r.POST("/profile", createProfile(locator.Profiles()))
 	r.PUT("/profile", updateProfile(locator.Profiles()))
 	r.GET("/profile", getProfile(locator.Profiles()))
+	r.GET("/recommendation", getRecommendation(locator.Profiles()))
 }
