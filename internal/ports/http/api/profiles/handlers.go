@@ -135,3 +135,87 @@ func getRecommendation(client profiles.ProfileServiceClient) echo.HandlerFunc {
 		return c.JSON(http.StatusOK, response.Success(NewProfile(p)))
 	}
 }
+
+func getPrompts(client profiles.ProfileServiceClient) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		userID := c.Param("user_id")
+		prompts, err := client.GetPrompts(
+			c.Request().Context(),
+			&profiles.GetPromptsRequest{UserId: userID},
+		)
+
+		if err != nil {
+			switch {
+			case errors.As(err, &validator.ValidationErrors{}):
+				return c.JSON(http.StatusBadRequest, response.Error(err))
+			default:
+				return c.JSON(http.StatusInternalServerError, response.Error(err))
+			}
+		}
+		return c.JSON(http.StatusOK, response.Success(Prompts(prompts)))
+	}
+}
+
+func createPrompt(client profiles.ProfileServiceClient) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var reqBody []Prompt
+		userID := c.Param("user_id")
+		err := c.Bind(&reqBody)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, response.Error(err))
+		}
+
+		prompts, err := client.AddPrompts(
+			c.Request().Context(),
+			&profiles.AddPromptsRequest{
+				UserId:  userID,
+				Prompts: mapPrompts(reqBody),
+			},
+		)
+
+		if err != nil {
+			switch {
+			case errors.As(err, &validator.ValidationErrors{}):
+				return c.JSON(http.StatusBadRequest, response.Error(err))
+			default:
+				return c.JSON(http.StatusInternalServerError, response.Error(err))
+			}
+		}
+		return c.JSON(http.StatusCreated, response.Success(Prompts(prompts)))
+	}
+}
+
+func updatePrompt(client profiles.ProfileServiceClient) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var reqBody Prompt
+		userID := c.Param("user_id")
+		promptID := c.Param("prompt_id")
+		err := c.Bind(&reqBody)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, response.Error(err))
+		}
+
+		prompt, err := client.UpdatePrompt(
+			c.Request().Context(),
+			&profiles.UpdatePromptRequest{
+				UserId: userID,
+				Prompt: &profiles.Prompt{
+					Id:       promptID,
+					Question: reqBody.Question,
+					Answer:   reqBody.Content,
+					Position: reqBody.Position,
+				},
+			},
+		)
+
+		if err != nil {
+			switch {
+			case errors.As(err, &validator.ValidationErrors{}):
+				return c.JSON(http.StatusBadRequest, response.Error(err))
+			default:
+				return c.JSON(http.StatusInternalServerError, response.Error(err))
+			}
+		}
+		return c.JSON(http.StatusCreated, response.Success(NewPrompt(prompt.Prompt)))
+	}
+}

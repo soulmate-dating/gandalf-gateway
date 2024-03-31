@@ -17,6 +17,27 @@ type Profile struct {
 	Smokes           string `json:"smokes,omitempty"`
 }
 
+type Prompt struct {
+	ID       string `json:"id"`
+	Type     string `json:"type"`
+	Question string `json:"question"`
+	Content  string `json:"content"`
+	Position int32  `json:"position"`
+}
+
+func mapPrompts(prompts []Prompt) []*profiles.Prompt {
+	res := make([]*profiles.Prompt, len(prompts))
+	for i, p := range prompts {
+		res[i] = &profiles.Prompt{
+			Id:       p.ID,
+			Question: p.Question,
+			Answer:   p.Content,
+			Position: p.Position,
+		}
+	}
+	return res
+}
+
 func NewProfile(p *profiles.ProfileResponse) *Profile {
 	info := p.PersonalInfo
 	return &Profile{
@@ -33,4 +54,29 @@ func NewProfile(p *profiles.ProfileResponse) *Profile {
 		DrinksAlcohol:    info.DrinksAlcohol,
 		Smokes:           info.Smokes,
 	}
+}
+
+func NewPrompt(p *profiles.Prompt) Prompt {
+	return Prompt{
+		ID:       p.Id,
+		Type:     "text",
+		Question: p.Question,
+		Content:  p.Answer,
+		Position: p.Position,
+	}
+}
+
+func Prompts(response *profiles.PromptsResponse) []Prompt {
+	prompts := response.Prompts
+	res := make([]Prompt, len(prompts))
+	for i, p := range prompts {
+		res[i] = Prompt{
+			ID:       p.Id,
+			Type:     "text",
+			Question: p.Question,
+			Content:  p.Answer,
+			Position: p.Position,
+		}
+	}
+	return res
 }
