@@ -112,7 +112,7 @@ func updateProfile(client profiles.ProfileServiceClient) echo.HandlerFunc {
 				return c.JSON(http.StatusInternalServerError, response.Error(err))
 			}
 		}
-		return c.JSON(http.StatusCreated, response.Success(NewProfile(p)))
+		return c.JSON(http.StatusOK, response.Success(NewProfile(p)))
 	}
 }
 
@@ -216,6 +216,6 @@ func updatePrompt(client profiles.ProfileServiceClient) echo.HandlerFunc {
 				return c.JSON(http.StatusInternalServerError, response.Error(err))
 			}
 		}
-		return c.JSON(http.StatusCreated, response.Success(NewPrompt(prompt.Prompt)))
+		return c.JSON(http.StatusOK, response.Success(NewPrompt(prompt.Prompt)))
 	}
 }
