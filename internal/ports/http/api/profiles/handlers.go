@@ -189,6 +189,7 @@ func updatePrompt(client profiles.ProfileServiceClient) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var reqBody Prompt
 		userID := c.Param("user_id")
+		promptID := c.Param("prompt_id")
 		err := c.Bind(&reqBody)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, response.Error(err))
@@ -199,7 +200,7 @@ func updatePrompt(client profiles.ProfileServiceClient) echo.HandlerFunc {
 			&profiles.UpdatePromptRequest{
 				UserId: userID,
 				Prompt: &profiles.Prompt{
-					Id:       reqBody.ID,
+					Id:       promptID,
 					Question: reqBody.Question,
 					Answer:   reqBody.Content,
 					Position: reqBody.Position,
