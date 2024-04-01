@@ -35,9 +35,7 @@ func signup(client auth.AuthServiceClient) echo.HandlerFunc {
 				return c.JSON(http.StatusInternalServerError, response.Error(err))
 			}
 		}
-		c.Response().Header().Set("Access-Token", user.AccessToken)
-		c.Response().Header().Set("Refresh-Token", user.RefreshToken)
-		return c.JSON(http.StatusCreated, response.Success(NewUser(user.Id)))
+		return c.JSON(http.StatusCreated, response.Success(NewUser(user)))
 	}
 }
 
@@ -64,7 +62,7 @@ func login(client auth.AuthServiceClient) echo.HandlerFunc {
 		}
 		c.Response().Header().Set("Access-Token", user.AccessToken)
 		c.Response().Header().Set("Refresh-Token", user.RefreshToken)
-		return c.JSON(http.StatusOK, response.Success(NewUser(user.Id)))
+		return c.JSON(http.StatusOK, response.Success(NewUser(user)))
 	}
 }
 
@@ -88,7 +86,7 @@ func refresh(client auth.AuthServiceClient) echo.HandlerFunc {
 		}
 		c.Response().Header().Set("Access-Token", user.AccessToken)
 		c.Response().Header().Set("Refresh-Token", user.RefreshToken)
-		return c.JSON(http.StatusOK, response.Success(NewUser(user.Id)))
+		return c.JSON(http.StatusOK, response.Success(NewUser(user)))
 	}
 }
 
