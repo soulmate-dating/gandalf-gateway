@@ -116,6 +116,26 @@ func updateProfile(client profiles.ProfileServiceClient) echo.HandlerFunc {
 	}
 }
 
+func getFullProfile(client profiles.ProfileServiceClient) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		userID := c.Param("user_id")
+		p, err := client.GetFullProfile(
+			c.Request().Context(),
+			&profiles.GetProfileRequest{Id: userID},
+		)
+
+		if err != nil {
+			switch {
+			case errors.As(err, &validator.ValidationErrors{}):
+				return c.JSON(http.StatusBadRequest, response.Error(err))
+			default:
+				return c.JSON(http.StatusInternalServerError, response.Error(err))
+			}
+		}
+		return c.JSON(http.StatusOK, response.Success(NewFullProfile(p)))
+	}
+}
+
 func getRecommendation(client profiles.ProfileServiceClient) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		userID := c.Param("user_id")
@@ -132,7 +152,7 @@ func getRecommendation(client profiles.ProfileServiceClient) echo.HandlerFunc {
 				return c.JSON(http.StatusInternalServerError, response.Error(err))
 			}
 		}
-		return c.JSON(http.StatusOK, response.Success(NewProfile(p)))
+		return c.JSON(http.StatusOK, response.Success(NewFullProfile(p)))
 	}
 }
 
