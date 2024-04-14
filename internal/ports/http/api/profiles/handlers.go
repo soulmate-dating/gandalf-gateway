@@ -1,9 +1,12 @@
 package profiles
 
 import (
+	"bytes"
 	"errors"
 	"github.com/soulmate-dating/gandalf-gateway/internal/app/clients/profiles"
 	"github.com/soulmate-dating/gandalf-gateway/internal/ports/http/response"
+	"io"
+	"mime/multipart"
 	"net/http"
 
 	"github.com/TobbyMax/validator"
@@ -222,9 +225,104 @@ func updatePrompt(client profiles.ProfileServiceClient) echo.HandlerFunc {
 				Prompt: &profiles.Prompt{
 					Id:       promptID,
 					Question: reqBody.Question,
-					Answer:   reqBody.Content,
+					Content:  reqBody.Content,
 					Position: reqBody.Position,
 				},
+			},
+		)
+
+		if err != nil {
+			switch {
+			case errors.As(err, &validator.ValidationErrors{}):
+				return c.JSON(http.StatusBadRequest, response.Error(err))
+			default:
+				return c.JSON(http.StatusInternalServerError, response.Error(err))
+			}
+		}
+		return c.JSON(http.StatusOK, response.Success(NewPrompt(prompt.Prompt)))
+	}
+}
+
+func updateFilePrompt(client profiles.ProfileServiceClient) echo.HandlerFunc {
+	return func(c echo.Context) (err error) {
+		var (
+			buf bytes.Buffer
+		)
+		userID := c.Param("user_id")
+		promptID := c.Param("prompt_id")
+
+		file, err := c.FormFile("file")
+		if err != nil {
+			return err
+		}
+		data, err := file.Open()
+		if err != nil {
+			return err
+		}
+		defer func(data multipart.File) {
+			if err != nil {
+				err = data.Close()
+			}
+		}(data)
+		_, err = io.Copy(&buf, data)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, response.Error(err))
+		}
+
+		prompt, err := client.UpdateFilePrompt(
+			c.Request().Context(),
+			&profiles.UpdateFilePromptRequest{
+				UserId:   userID,
+				Id:       promptID,
+				Question: c.FormValue("question"),
+				Content:  buf.Bytes(),
+				Type:     c.FormValue("type"),
+			},
+		)
+
+		if err != nil {
+			switch {
+			case errors.As(err, &validator.ValidationErrors{}):
+				return c.JSON(http.StatusBadRequest, response.Error(err))
+			default:
+				return c.JSON(http.StatusInternalServerError, response.Error(err))
+			}
+		}
+		return c.JSON(http.StatusOK, response.Success(NewPrompt(prompt.Prompt)))
+	}
+}
+
+func createFilePrompt(client profiles.ProfileServiceClient) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var (
+			buf bytes.Buffer
+		)
+		userID := c.Param("user_id")
+		file, err := c.FormFile("file")
+		if err != nil {
+			return err
+		}
+		data, err := file.Open()
+		if err != nil {
+			return err
+		}
+		defer func(data multipart.File) {
+			if err != nil {
+				err = data.Close()
+			}
+		}(data)
+		_, err = io.Copy(&buf, data)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, response.Error(err))
+		}
+
+		prompt, err := client.AddFilePrompt(
+			c.Request().Context(),
+			&profiles.AddFilePromptRequest{
+				UserId:   userID,
+				Question: c.FormValue("question"),
+				Content:  buf.Bytes(),
+				Type:     c.FormValue("type"),
 			},
 		)
 

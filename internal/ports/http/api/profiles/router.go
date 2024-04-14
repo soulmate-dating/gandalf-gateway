@@ -16,7 +16,11 @@ func RegisterRoutes(g *echo.Group, locator app.ServiceLocator) {
 	r.GET("/profile/full", getFullProfile(locator.Profiles()))
 	r.GET("/recommendation", getRecommendation(locator.Profiles()))
 
-	r.POST("/prompts", createPrompt(locator.Profiles()))
+	r.POST("/prompts/text", createPrompt(locator.Profiles()))
+	r.PUT("/prompts/text/:prompt_id", updatePrompt(locator.Profiles()))
+
+	r.POST("/prompts/file", createFilePrompt(locator.Profiles()))
+	r.PUT("/prompts/file/:prompt_id", updateFilePrompt(locator.Profiles()))
+
 	r.GET("/prompts", getPrompts(locator.Profiles()))
-	r.PUT("/prompts/:prompt_id", updatePrompt(locator.Profiles()))
 }

@@ -1,6 +1,23 @@
 version: '3.9'
 
 services:
+
+  glimpse-api:
+    container_name: glimpse
+    image: nginx:stable-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - gateway
+      - s3
+    depends_on:
+      - gateway
+      - auth
+      - profiles
+      - media
+
   gateway:
     container_name: gateway
     build:
@@ -39,6 +56,18 @@ services:
       - postgres
       - gateway
 
+  media:
+    container_name: media
+    image: maxage/media:master
+    ports:
+      - "8082:8082"
+    depends_on:
+      - minio
+    restart: unless-stopped
+    networks:
+      - s3
+      - gateway
+
   postgres:
     container_name: postgres
     image: postgres:latest
@@ -58,8 +87,26 @@ services:
     networks:
       - postgres
 
+  minio:
+    image: minio/minio
+    ports:
+      - "9000:9000"
+    environment:
+      MINIO_ROOT_USER: accesskey
+      MINIO_ROOT_PASSWORD: secretkey
+    command: server /data
+    volumes:
+      - minio-data:/data
+    networks:
+      - s3
+
+volumes:
+  minio-data:
+
 networks:
   postgres:
     driver: bridge
   gateway:
+    driver: bridge
+  s3:
     driver: bridge
