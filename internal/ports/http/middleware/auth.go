@@ -16,7 +16,7 @@ func InitAuthMiddleWare(client auth.AuthServiceClient) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			authHeader := c.Request().Header.Get("Authorization")
-			if strings.HasPrefix(authHeader, BearerPrefix) == false {
+			if !strings.HasPrefix(authHeader, BearerPrefix) {
 				return c.JSON(http.StatusForbidden, response.Error(errors.New("wrong authorization header format")))
 			}
 			accessToken := authHeader[len(BearerPrefix):]
