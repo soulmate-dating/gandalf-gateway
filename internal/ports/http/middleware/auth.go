@@ -7,12 +7,19 @@ import (
 	"github.com/soulmate-dating/gandalf-gateway/internal/app/clients/auth"
 	"github.com/soulmate-dating/gandalf-gateway/internal/ports/http/response"
 	"net/http"
+	"strings"
 )
+
+const BearerPrefix = "Bearer "
 
 func InitAuthMiddleWare(client auth.AuthServiceClient) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			accessToken := c.Request().Header.Get("Access-Token")
+			authHeader := c.Request().Header.Get("Authorization")
+			if strings.HasPrefix(authHeader, BearerPrefix) == false {
+				return c.JSON(http.StatusForbidden, response.Error(errors.New("wrong authorization header format")))
+			}
+			accessToken := authHeader[len(BearerPrefix):]
 			if accessToken == "" {
 				return c.JSON(http.StatusForbidden, response.Error(errors.New("access token not provided")))
 			}
