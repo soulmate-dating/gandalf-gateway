@@ -1,14 +1,14 @@
 package response
 
 type Response struct {
-	Data  any    `json:"data"`
-	Error string `json:"error"`
+	Data  any   `json:"data"`
+	Error error `json:"error"`
 }
 
 func Error(err error) Response {
-	return Response{Data: nil, Error: err.Error()}
+	return Response{Data: nil, Error: err}
 }
 
 func Success(data any) Response {
-	return Response{Data: data, Error: ""}
+	return Response{Data: data, Error: nil}
 }
