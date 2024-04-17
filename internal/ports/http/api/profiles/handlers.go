@@ -15,6 +15,18 @@ import (
 
 var ErrParameterNotFound = errors.New("necessary parameters not provided")
 
+// @Summary Create user profile
+// @Description This can only be done by the logged in user.
+// @Tags profiles
+// @ID createProfileByUserId
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer <access_token>" "Authorization header"
+// @Param user_id path string true "User ID"
+// @Param body body Profile true "Create user profile"
+// @Success 201 {object} response.Response{data=Profile,error=nil} "Profile created"
+// @Failure 500 {object} response.Response{data=nil,error=string} "Internal server error"
+// @Router /users/{user_id}/profile [post]
 func createProfile(client profiles.ProfileServiceClient) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var reqBody Profile
@@ -57,6 +69,17 @@ func createProfile(client profiles.ProfileServiceClient) echo.HandlerFunc {
 	}
 }
 
+// @Summary Get user profile
+// @Description 'This can only be done by the logged in user.'
+// @Tags profiles
+// @ID getUserProfileById
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer <access_token>" "Authorization header"
+// @Param user_id path string true "User id"
+// @Success 200 {object} response.Response{data=Profile,error=nil} "Profile found"
+// @Failure 500 {object} response.Response{data=nil,error=string} "Internal server error"
+// @Router /users/{user_id}/profile [get]
 func getProfile(client profiles.ProfileServiceClient) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		userID := c.Param("user_id")
@@ -77,6 +100,18 @@ func getProfile(client profiles.ProfileServiceClient) echo.HandlerFunc {
 	}
 }
 
+// @Summary Update user profile
+// @Description Should be replaced with a PATCH request.
+// @Tags profiles
+// @ID updateProfileByUserId
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer <access_token>" "Authorization header"
+// @Param user_id path string true "User ID"
+// @Param body body Profile true "Update user profile"
+// @Success 200 {object} response.Response{data=Profile,error=nil} "Profile Updated"
+// @Failure 500 {object} response.Response{data=nil,error=string} "Internal server error"
+// @Router /users/{user_id}/profile [put]
 func updateProfile(client profiles.ProfileServiceClient) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var reqBody Profile
@@ -86,9 +121,9 @@ func updateProfile(client profiles.ProfileServiceClient) echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, response.Error(err))
 		}
 
-		p, err := client.CreateProfile(
+		p, err := client.UpdateProfile(
 			c.Request().Context(),
-			&profiles.CreateProfileRequest{
+			&profiles.UpdateProfileRequest{
 				Id: userID,
 				PersonalInfo: &profiles.PersonalInfo{
 					FirstName:        reqBody.FirstName,
@@ -119,6 +154,17 @@ func updateProfile(client profiles.ProfileServiceClient) echo.HandlerFunc {
 	}
 }
 
+// @Summary Get full user profile
+// @Description 'This can only be done by the logged in user.'
+// @Tags profiles
+// @ID getFullProfileByUserId
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer <access_token>" "Authorization header"
+// @Param user_id path string true "User id"
+// @Success 200 {object} response.Response{data=FullProfile,error=nil} "Full profile found"'
+// @Failure 500 {object} response.Response{data=nil,error=string} "Internal server error"
+// @Router /users/{user_id}/profile/full [get]
 func getFullProfile(client profiles.ProfileServiceClient) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		userID := c.Param("user_id")
@@ -139,6 +185,17 @@ func getFullProfile(client profiles.ProfileServiceClient) echo.HandlerFunc {
 	}
 }
 
+// @Summary Get random profile recommendation
+// @Description 'This can only be done by the logged in user.'
+// @Tags profiles
+// @ID getRecommendationByUserId
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer <access_token>" "Authorization header"
+// @Param user_id path string true "User id"
+// @Success 200 {object} response.Response{data=FullProfile,error=nil} "Recommendation found"
+// @Failure 500 {object} response.Response{data=nil,error=string} "Internal server error"
+// @Router /users/{user_id}/profile/recommendation [get]
 func getRecommendation(client profiles.ProfileServiceClient) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		userID := c.Param("user_id")
@@ -159,6 +216,17 @@ func getRecommendation(client profiles.ProfileServiceClient) echo.HandlerFunc {
 	}
 }
 
+// @Summary Get user prompts
+// @Description 'This can only be done by the logged in user.'
+// @Tags prompts
+// @ID getPromptsByUserId
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer <access_token>" "Authorization header"
+// @Param user_id path string true "User id"
+// @Success 200 {object} response.Response{data=[]Prompt,error=nil} "Prompts found"
+// @Failure 500 {object} response.Response{data=nil,error=string} "Internal server error"
+// @Router /users/{user_id}/prompts [get]
 func getPrompts(client profiles.ProfileServiceClient) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		userID := c.Param("user_id")
@@ -179,6 +247,18 @@ func getPrompts(client profiles.ProfileServiceClient) echo.HandlerFunc {
 	}
 }
 
+// @Summary Create text prompts
+// @Description 'This can only be done by the logged in user.'
+// @Tags prompts
+// @ID createPromptsByUserId
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer <access_token>" "Authorization header"
+// @Param user_id path string true "User id"
+// @Param body body []Prompt true "Create user prompts"
+// @Success 201 {object} response.Response{data=[]Prompt,error=nil} "Prompts created"
+// @Failure 500 {object} response.Response{data=nil,error=string} "Internal server error"
+// @Router /users/{user_id}/prompts/text [post]
 func createPrompt(client profiles.ProfileServiceClient) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var reqBody []Prompt
@@ -208,6 +288,19 @@ func createPrompt(client profiles.ProfileServiceClient) echo.HandlerFunc {
 	}
 }
 
+// @Summary Update text prompt
+// @Description 'This can only be done by the logged in user.'
+// @Tags prompts
+// @ID updatePromptByUserId
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer <access_token>" "Authorization header"
+// @Param user_id path string true "User id"
+// @Param prompt_id path string true "Prompt id"
+// @Param body body Prompt true "Update user prompt"
+// @Success 200 {object} response.Response{data=Prompt,error=nil} "Prompt updated"
+// @Failure 500 {object} response.Response{data=nil,error=string} "Internal server error"
+// @Router /users/{user_id}/prompts/text/{prompt_id} [put]
 func updatePrompt(client profiles.ProfileServiceClient) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var reqBody Prompt
@@ -243,6 +336,21 @@ func updatePrompt(client profiles.ProfileServiceClient) echo.HandlerFunc {
 	}
 }
 
+// @Summary Update file prompt
+// @Description 'This can only be done by the logged in user.'
+// @Tags prompts
+// @ID updateFilePromptByUserId
+// @Accept multipart/form-data
+// @Produce json
+// @Param Authorization header string true "Bearer <access_token>" "Authorization header"
+// @Param user_id path string true "User id"
+// @Param prompt_id path string true "Prompt id"
+// @Param question formData string true "Prompt question"
+// @Param type formData string true "Prompt type"
+// @Param file formData file true "Prompt file"
+// @Success 201 {object} response.Response{data=Prompt,error=nil} "File prompt created"
+// @Failure 500 {object} response.Response{data=nil,error=string} "Internal server error"
+// @Router /users/{user_id}/prompts/file/{prompt_id} [put]
 func updateFilePrompt(client profiles.ProfileServiceClient) echo.HandlerFunc {
 	return func(c echo.Context) (err error) {
 		var (
@@ -292,6 +400,20 @@ func updateFilePrompt(client profiles.ProfileServiceClient) echo.HandlerFunc {
 	}
 }
 
+// @Summary Create file prompt
+// @Description 'This can only be done by the logged in user.'
+// @Tags prompts
+// @ID createFilePromptByUserId
+// @Accept multipart/form-data
+// @Produce json
+// @Param Authorization header string true "Bearer <access_token>" "Authorization header"
+// @Param user_id path string true "User id"
+// @Param question formData string true "Prompt question"
+// @Param type formData string true "Prompt type"
+// @Param file formData file true "Prompt file"
+// @Success 201 {object} response.Response{data=Prompt,error=nil} "File prompt created"
+// @Failure 500 {object} response.Response{data=nil,error=string} "Internal server error"
+// @Router /users/{user_id}/prompts/file [post]
 func createFilePrompt(client profiles.ProfileServiceClient) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var (

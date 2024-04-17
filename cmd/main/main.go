@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	_ "github.com/soulmate-dating/gandalf-gateway/docs"
 	"github.com/soulmate-dating/gandalf-gateway/internal/app"
 	"github.com/soulmate-dating/gandalf-gateway/internal/graceful"
 	"github.com/soulmate-dating/gandalf-gateway/internal/ports/http"

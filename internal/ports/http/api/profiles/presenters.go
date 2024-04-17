@@ -2,29 +2,32 @@ package profiles
 
 import "github.com/soulmate-dating/gandalf-gateway/internal/app/clients/profiles"
 
+// Profile represents a user's profile.
 type Profile struct {
-	FirstName        string `json:"first_name,omitempty"`
-	LastName         string `json:"last_name"`
-	BirthDate        string `json:"birth_date"`
-	Sex              string `json:"sex,omitempty"`
-	PreferredPartner string `json:"preferred_partner,omitempty"`
-	Intention        string `json:"intention,omitempty"`
-	Height           uint32 `json:"height,omitempty"`
-	HasChildren      bool   `json:"has_children,omitempty"`
-	FamilyPlans      string `json:"family_plans,omitempty"`
+	FirstName        string `json:"first_name,omitempty" binding:"required" example:"Elon"`
+	LastName         string `json:"last_name" binding:"required" example:"Musk"`
+	BirthDate        string `json:"birth_date" binding:"required" example:"1971-06-28" format:"date" pattern:"^\\d{4}-\\d{2}-\\d{2}$"`
+	Sex              string `json:"sex" binding:"required" example:"man"`
+	PreferredPartner string `json:"preferred_partner" binding:"required" example:"woman"`
+	Intention        string `json:"intention" binding:"required" example:"long-term relationship"`
+	Height           uint32 `json:"height" example:"180"`
+	HasChildren      bool   `json:"has_children" binding:"required" example:"false"`
+	FamilyPlans      string `json:"family_plans" binding:"required" example:"not sure yet"`
 	Location         string `json:"location,omitempty"`
-	DrinksAlcohol    string `json:"drinks_alcohol,omitempty"`
-	Smokes           string `json:"smokes,omitempty"`
+	DrinksAlcohol    string `json:"drinks_alcohol" binding:"required" example:"sometimes"`
+	Smokes           string `json:"smokes" binding:"required" example:"no"`
 }
 
+// Prompt represents a user's prompt.
 type Prompt struct {
-	ID       string `json:"id"`
-	Type     string `json:"type"`
-	Question string `json:"question"`
-	Content  string `json:"content"`
+	ID       string `json:"id" example:"75988450-f7c7-4022-b04b-6679e9294056"`
+	Type     string `json:"type" example:"text"`
+	Question string `json:"question,omitempty" example:"My most irrational fear is..."`
+	Content  string `json:"content" binding:"required" example:"Spider Man"`
 	Position int32  `json:"position"`
 }
 
+// FullProfile represents a user's full profile.
 type FullProfile struct {
 	Profile Profile  `json:"profile"`
 	Prompts []Prompt `json:"prompts"`

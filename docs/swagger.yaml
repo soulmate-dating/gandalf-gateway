@@ -1,0 +1,806 @@
+basePath: /api/v0
+definitions:
+  auth.Credentials:
+    properties:
+      email:
+        example: elon@mail.com
+        type: string
+      password:
+        example: password1234
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  auth.User:
+    properties:
+      access_token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTM5NzY2MDIsImlzcyI6ImF1dGgtc2VydmljZSIsIklkIjoiZDIwOTU1MDEtNDI5NS00Y2IyLWI2MTYtOTRjZDJkYzViZmIxIiwiRW1haWwiOiJtYXhlIn0.y-rHZyYh7i1q0gSqKeRPBBbl-xjfpTu7MOEQzEFozX4
+        type: string
+      id:
+        example: d2095501-4295-4cb2-b616-94cd2dc5bfb1
+        type: string
+      refresh_token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTU5NjM4MDIsImlzcyI6ImF1dGgtc2VydmljZSIsIklkIjoiZDIwOTU1MDEtNDI5NS00Y2IyLWI2MTYtOTRjZDJkYzViZmIxIiwiRW1haWwiOiJtYXhlIn0.MqRPlXpIU2WKd5t6U5V5yeJQUoC0E_9w8Qa7WPGSgZM
+        type: string
+    required:
+    - access_token
+    - id
+    - refresh_token
+    type: object
+  internal_ports_http_api_profiles.Prompt:
+    properties:
+      content:
+        example: Spider Man
+        type: string
+      id:
+        example: 75988450-f7c7-4022-b04b-6679e9294056
+        type: string
+      position:
+        type: integer
+      question:
+        example: My most irrational fear is...
+        type: string
+      type:
+        example: text
+        type: string
+    required:
+    - content
+    type: object
+  profiles.FullProfile:
+    properties:
+      profile:
+        $ref: '#/definitions/profiles.Profile'
+      prompts:
+        items:
+          $ref: '#/definitions/internal_ports_http_api_profiles.Prompt'
+        type: array
+    type: object
+  profiles.Profile:
+    properties:
+      birth_date:
+        example: "1971-06-28"
+        format: date
+        type: string
+      drinks_alcohol:
+        example: sometimes
+        type: string
+      family_plans:
+        example: not sure yet
+        type: string
+      first_name:
+        example: Elon
+        type: string
+      has_children:
+        example: false
+        type: boolean
+      height:
+        example: 180
+        type: integer
+      intention:
+        example: long-term relationship
+        type: string
+      last_name:
+        example: Musk
+        type: string
+      location:
+        type: string
+      preferred_partner:
+        example: woman
+        type: string
+      sex:
+        example: man
+        type: string
+      smokes:
+        example: "no"
+        type: string
+    required:
+    - birth_date
+    - drinks_alcohol
+    - family_plans
+    - first_name
+    - has_children
+    - intention
+    - last_name
+    - preferred_partner
+    - sex
+    - smokes
+    type: object
+  response.Response:
+    properties:
+      data: {}
+      error: {}
+    type: object
+host: localhost
+info:
+  contact:
+    name: API Support
+  description: Authentication and profiles gateway
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Gandalf API Gateway
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates a user and returns an access token.
+      operationId: loginUser
+      parameters:
+      - description: Log in a user
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/auth.Credentials'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User logged in
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/auth.User'
+                error:
+                  type: object
+              type: object
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+                error:
+                  type: string
+              type: object
+      summary: Log in a user
+      tags:
+      - auth
+  /auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Logs out a user by invalidating the access token.
+      operationId: logoutUser
+      parameters:
+      - description: Bearer <access_token>
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User logged out
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+                error:
+                  type: object
+              type: object
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+                error:
+                  type: string
+              type: object
+      summary: Log out a user
+      tags:
+      - auth
+  /auth/refresh:
+    get:
+      consumes:
+      - application/json
+      description: Refreshes the access token.
+      operationId: refreshToken
+      parameters:
+      - description: Bearer <refresh_token>
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User refreshed
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/auth.User'
+                error:
+                  type: object
+              type: object
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+                error:
+                  type: string
+              type: object
+      summary: Refresh access token
+      tags:
+      - auth
+  /auth/signup:
+    post:
+      consumes:
+      - application/json
+      description: Registers a new user with the provided credentials.
+      operationId: signUpUser
+      parameters:
+      - description: User credentials
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/auth.Credentials'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User created
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/auth.User'
+                error:
+                  type: object
+              type: object
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+                error:
+                  type: string
+              type: object
+      summary: Sign up a new user
+      tags:
+      - auth
+  /users/{user_id}/profile:
+    get:
+      consumes:
+      - application/json
+      description: '''This can only be done by the logged in user.'''
+      operationId: getUserProfileById
+      parameters:
+      - description: Bearer <access_token>
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Profile found
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/profiles.Profile'
+                error:
+                  type: object
+              type: object
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+                error:
+                  type: string
+              type: object
+      summary: Get user profile
+      tags:
+      - profiles
+    post:
+      consumes:
+      - application/json
+      description: This can only be done by the logged in user.
+      operationId: createProfileByUserId
+      parameters:
+      - description: Bearer <access_token>
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Create user profile
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/profiles.Profile'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Profile created
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/profiles.Profile'
+                error:
+                  type: object
+              type: object
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+                error:
+                  type: string
+              type: object
+      summary: Create user profile
+      tags:
+      - profiles
+    put:
+      consumes:
+      - application/json
+      description: Should be replaced with a PATCH request.
+      operationId: updateProfileByUserId
+      parameters:
+      - description: Bearer <access_token>
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Update user profile
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/profiles.Profile'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Profile Updated
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/profiles.Profile'
+                error:
+                  type: object
+              type: object
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+                error:
+                  type: string
+              type: object
+      summary: Update user profile
+      tags:
+      - profiles
+  /users/{user_id}/profile/full:
+    get:
+      consumes:
+      - application/json
+      description: '''This can only be done by the logged in user.'''
+      operationId: getFullProfileByUserId
+      parameters:
+      - description: Bearer <access_token>
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Full profile found"'
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/profiles.FullProfile'
+                error:
+                  type: object
+              type: object
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+                error:
+                  type: string
+              type: object
+      summary: Get full user profile
+      tags:
+      - profiles
+  /users/{user_id}/profile/recommendation:
+    get:
+      consumes:
+      - application/json
+      description: '''This can only be done by the logged in user.'''
+      operationId: getRecommendationByUserId
+      parameters:
+      - description: Bearer <access_token>
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Recommendation found
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/profiles.FullProfile'
+                error:
+                  type: object
+              type: object
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+                error:
+                  type: string
+              type: object
+      summary: Get random profile recommendation
+      tags:
+      - profiles
+  /users/{user_id}/prompts:
+    get:
+      consumes:
+      - application/json
+      description: '''This can only be done by the logged in user.'''
+      operationId: getPromptsByUserId
+      parameters:
+      - description: Bearer <access_token>
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Prompts found
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/internal_ports_http_api_profiles.Prompt'
+                  type: array
+                error:
+                  type: object
+              type: object
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+                error:
+                  type: string
+              type: object
+      summary: Get user prompts
+      tags:
+      - prompts
+  /users/{user_id}/prompts/file:
+    post:
+      consumes:
+      - multipart/form-data
+      description: '''This can only be done by the logged in user.'''
+      operationId: createFilePromptByUserId
+      parameters:
+      - description: Bearer <access_token>
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Prompt question
+        in: formData
+        name: question
+        required: true
+        type: string
+      - description: Prompt type
+        in: formData
+        name: type
+        required: true
+        type: string
+      - description: Prompt file
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: File prompt created
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_ports_http_api_profiles.Prompt'
+                error:
+                  type: object
+              type: object
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+                error:
+                  type: string
+              type: object
+      summary: Create file prompt
+      tags:
+      - prompts
+  /users/{user_id}/prompts/file/{prompt_id}:
+    put:
+      consumes:
+      - multipart/form-data
+      description: '''This can only be done by the logged in user.'''
+      operationId: updateFilePromptByUserId
+      parameters:
+      - description: Bearer <access_token>
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Prompt id
+        in: path
+        name: prompt_id
+        required: true
+        type: string
+      - description: Prompt question
+        in: formData
+        name: question
+        required: true
+        type: string
+      - description: Prompt type
+        in: formData
+        name: type
+        required: true
+        type: string
+      - description: Prompt file
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: File prompt created
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_ports_http_api_profiles.Prompt'
+                error:
+                  type: object
+              type: object
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+                error:
+                  type: string
+              type: object
+      summary: Update file prompt
+      tags:
+      - prompts
+  /users/{user_id}/prompts/text:
+    post:
+      consumes:
+      - application/json
+      description: '''This can only be done by the logged in user.'''
+      operationId: createPromptsByUserId
+      parameters:
+      - description: Bearer <access_token>
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Create user prompts
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/internal_ports_http_api_profiles.Prompt'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Prompts created
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/internal_ports_http_api_profiles.Prompt'
+                  type: array
+                error:
+                  type: object
+              type: object
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+                error:
+                  type: string
+              type: object
+      summary: Create text prompts
+      tags:
+      - prompts
+  /users/{user_id}/prompts/text/{prompt_id}:
+    put:
+      consumes:
+      - application/json
+      description: '''This can only be done by the logged in user.'''
+      operationId: updatePromptByUserId
+      parameters:
+      - description: Bearer <access_token>
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Prompt id
+        in: path
+        name: prompt_id
+        required: true
+        type: string
+      - description: Update user prompt
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_ports_http_api_profiles.Prompt'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Prompt updated
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_ports_http_api_profiles.Prompt'
+                error:
+                  type: object
+              type: object
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+                error:
+                  type: string
+              type: object
+      summary: Update text prompt
+      tags:
+      - prompts
+swagger: "2.0"
