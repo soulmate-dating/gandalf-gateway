@@ -36,7 +36,7 @@ func mapPrompts(prompts []Prompt) []*profiles.Prompt {
 		res[i] = &profiles.Prompt{
 			Id:       p.ID,
 			Question: p.Question,
-			Answer:   p.Content,
+			Content:  p.Content,
 			Position: p.Position,
 		}
 	}
@@ -66,7 +66,7 @@ func NewPrompt(p *profiles.Prompt) Prompt {
 		ID:       p.Id,
 		Type:     "text",
 		Question: p.Question,
-		Content:  p.Answer,
+		Content:  p.Content,
 		Position: p.Position,
 	}
 }
@@ -91,9 +91,9 @@ func NewFullProfile(response *profiles.FullProfileResponse) *FullProfile {
 	for i, p := range response.Prompts {
 		prompts[i] = Prompt{
 			ID:       p.Id,
-			Type:     "text",
+			Type:     p.Type,
 			Question: p.Question,
-			Content:  p.Answer,
+			Content:  p.Content,
 			Position: p.Position,
 		}
 	}
@@ -109,9 +109,9 @@ func Prompts(response *profiles.PromptsResponse) []Prompt {
 	for i, p := range prompts {
 		res[i] = Prompt{
 			ID:       p.Id,
-			Type:     "text",
+			Type:     p.Type,
 			Question: p.Question,
-			Content:  p.Answer,
+			Content:  p.Content,
 			Position: p.Position,
 		}
 	}
