@@ -12,7 +12,7 @@ type Profile struct {
 	Intention        string `json:"intention" binding:"required" example:"long-term relationship"`
 	Height           uint32 `json:"height" example:"180"`
 	HasChildren      bool   `json:"has_children" binding:"required" example:"false"`
-	FamilyPlans      string `json:"family_plans" binding:"required" example:"not sure yet""`
+	FamilyPlans      string `json:"family_plans" binding:"required" example:"not sure yet"`
 	Location         string `json:"location,omitempty"`
 	DrinksAlcohol    string `json:"drinks_alcohol" binding:"required" example:"sometimes"`
 	Smokes           string `json:"smokes" binding:"required" example:"no"`
