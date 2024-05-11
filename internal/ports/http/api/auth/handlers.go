@@ -7,10 +7,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/TobbyMax/validator"
 	"github.com/labstack/echo/v4"
-
-	"github.com/soulmate-dating/gandalf-gateway/internal/app"
 )
 
 const BearerPrefix = "Bearer "
@@ -32,7 +29,7 @@ func signup(client auth.AuthServiceClient) echo.HandlerFunc {
 		var reqBody Credentials
 		err := c.Bind(&reqBody)
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, response.Error(err))
+			return c.JSON(http.StatusBadRequest, response.Error(err.Error()))
 		}
 
 		user, err := client.SignUp(
@@ -41,12 +38,7 @@ func signup(client auth.AuthServiceClient) echo.HandlerFunc {
 		)
 
 		if err != nil {
-			switch {
-			case errors.As(err, &validator.ValidationErrors{}):
-				return c.JSON(http.StatusBadRequest, response.Error(err))
-			default:
-				return c.JSON(http.StatusInternalServerError, response.Error(err))
-			}
+			return response.MapError(c, err)
 		}
 		return c.JSON(http.StatusCreated, response.Success(NewUser(user)))
 	}
@@ -67,7 +59,7 @@ func login(client auth.AuthServiceClient) echo.HandlerFunc {
 		var reqBody Credentials
 		err := c.Bind(&reqBody)
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, response.Error(err))
+			return c.JSON(http.StatusBadRequest, response.Error(err.Error()))
 		}
 
 		user, err := client.Login(
@@ -76,12 +68,7 @@ func login(client auth.AuthServiceClient) echo.HandlerFunc {
 		)
 
 		if err != nil {
-			switch {
-			case errors.As(err, &validator.ValidationErrors{}):
-				return c.JSON(http.StatusBadRequest, response.Error(err))
-			default:
-				return c.JSON(http.StatusInternalServerError, response.Error(err))
-			}
+			return response.MapError(c, err)
 		}
 		return c.JSON(http.StatusOK, response.Success(NewUser(user)))
 	}
@@ -101,23 +88,18 @@ func refresh(client auth.AuthServiceClient) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		authHeader := c.Request().Header.Get("Authorization")
 		if !strings.HasPrefix(authHeader, BearerPrefix) {
-			return c.JSON(http.StatusForbidden, response.Error(errors.New("wrong authorization header format")))
+			return c.JSON(http.StatusForbidden, response.Error(errors.New("wrong authorization header format").Error()))
 		}
 		refreshToken := authHeader[len(BearerPrefix):]
 		if refreshToken == "" {
-			return c.JSON(http.StatusBadRequest, response.Error(ErrParameterNotFound))
+			return c.JSON(http.StatusBadRequest, response.Error(ErrParameterNotFound.Error()))
 		}
 
 		user, err := client.Refresh(c.Request().Context(), &auth.RefreshRequest{
 			RefreshToken: refreshToken,
 		})
 		if err != nil {
-			switch {
-			case errors.Is(err, app.ErrForbidden):
-				return c.JSON(http.StatusForbidden, response.Error(err))
-			default:
-				return c.JSON(http.StatusInternalServerError, response.Error(err))
-			}
+			return response.MapError(c, err)
 		}
 		c.Response().Header().Set("Access-Token", user.AccessToken)
 		c.Response().Header().Set("Refresh-Token", user.RefreshToken)
@@ -139,23 +121,18 @@ func logout(client auth.AuthServiceClient) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		authHeader := c.Request().Header.Get("Authorization")
 		if !strings.HasPrefix(authHeader, BearerPrefix) {
-			return c.JSON(http.StatusForbidden, response.Error(errors.New("wrong authorization header format")))
+			return c.JSON(http.StatusForbidden, response.Error(errors.New("wrong authorization header format").Error()))
 		}
 		accessToken := authHeader[len(BearerPrefix):]
 		if accessToken == "" {
-			return c.JSON(http.StatusBadRequest, response.Error(ErrParameterNotFound))
+			return c.JSON(http.StatusBadRequest, response.Error(ErrParameterNotFound.Error()))
 		}
 
 		_, err := client.Logout(c.Request().Context(), &auth.LogoutRequest{
 			AccessToken: accessToken,
 		})
 		if err != nil {
-			switch {
-			case errors.Is(err, app.ErrForbidden):
-				return c.JSON(http.StatusForbidden, response.Error(err))
-			default:
-				return c.JSON(http.StatusInternalServerError, response.Error(err))
-			}
+			return response.MapError(c, err)
 		}
 		return c.JSON(http.StatusOK, response.Success(nil))
 	}
