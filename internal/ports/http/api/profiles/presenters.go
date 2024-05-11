@@ -41,6 +41,7 @@ func mapPrompts(prompts []Prompt) []*profiles.Prompt {
 			Question: p.Question,
 			Content:  p.Content,
 			Position: p.Position,
+			Type:     "text",
 		}
 	}
 	return res
@@ -67,7 +68,7 @@ func NewProfile(p *profiles.ProfileResponse) *Profile {
 func NewPrompt(p *profiles.Prompt) Prompt {
 	return Prompt{
 		ID:       p.Id,
-		Type:     "text",
+		Type:     p.Type,
 		Question: p.Question,
 		Content:  p.Content,
 		Position: p.Position,

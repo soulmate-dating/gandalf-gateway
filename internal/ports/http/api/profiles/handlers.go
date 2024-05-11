@@ -4,12 +4,12 @@ import (
 	"bytes"
 	"errors"
 	"github.com/soulmate-dating/gandalf-gateway/internal/app/clients/profiles"
+	"github.com/soulmate-dating/gandalf-gateway/internal/ports/http/middleware"
 	"github.com/soulmate-dating/gandalf-gateway/internal/ports/http/response"
 	"io"
 	"mime/multipart"
 	"net/http"
 
-	"github.com/TobbyMax/validator"
 	"github.com/labstack/echo/v4"
 )
 
@@ -31,9 +31,13 @@ func createProfile(client profiles.ProfileServiceClient) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var reqBody Profile
 		userID := c.Param("user_id")
+		authID := c.Get(middleware.AuthIDKey).(string)
+		if authID != userID {
+			return c.JSON(http.StatusForbidden, response.Error("Access denied"))
+		}
 		err := c.Bind(&reqBody)
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, response.Error(err))
+			return c.JSON(http.StatusBadRequest, response.Error(err.Error()))
 		}
 
 		p, err := client.CreateProfile(
@@ -58,12 +62,7 @@ func createProfile(client profiles.ProfileServiceClient) echo.HandlerFunc {
 		)
 
 		if err != nil {
-			switch {
-			case errors.As(err, &validator.ValidationErrors{}):
-				return c.JSON(http.StatusBadRequest, response.Error(err))
-			default:
-				return c.JSON(http.StatusInternalServerError, response.Error(err))
-			}
+			return response.MapError(c, err)
 		}
 		return c.JSON(http.StatusCreated, response.Success(NewProfile(p)))
 	}
@@ -89,12 +88,7 @@ func getProfile(client profiles.ProfileServiceClient) echo.HandlerFunc {
 		)
 
 		if err != nil {
-			switch {
-			case errors.As(err, &validator.ValidationErrors{}):
-				return c.JSON(http.StatusBadRequest, response.Error(err))
-			default:
-				return c.JSON(http.StatusInternalServerError, response.Error(err))
-			}
+			return response.MapError(c, err)
 		}
 		return c.JSON(http.StatusOK, response.Success(NewProfile(p)))
 	}
@@ -116,9 +110,13 @@ func updateProfile(client profiles.ProfileServiceClient) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var reqBody Profile
 		userID := c.Param("user_id")
+		authID := c.Get(middleware.AuthIDKey).(string)
+		if authID != userID {
+			return c.JSON(http.StatusForbidden, response.Error("Access denied"))
+		}
 		err := c.Bind(&reqBody)
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, response.Error(err))
+			return c.JSON(http.StatusBadRequest, response.Error(err.Error()))
 		}
 
 		p, err := client.UpdateProfile(
@@ -143,12 +141,7 @@ func updateProfile(client profiles.ProfileServiceClient) echo.HandlerFunc {
 		)
 
 		if err != nil {
-			switch {
-			case errors.As(err, &validator.ValidationErrors{}):
-				return c.JSON(http.StatusBadRequest, response.Error(err))
-			default:
-				return c.JSON(http.StatusInternalServerError, response.Error(err))
-			}
+			return response.MapError(c, err)
 		}
 		return c.JSON(http.StatusOK, response.Success(NewProfile(p)))
 	}
@@ -174,12 +167,7 @@ func getFullProfile(client profiles.ProfileServiceClient) echo.HandlerFunc {
 		)
 
 		if err != nil {
-			switch {
-			case errors.As(err, &validator.ValidationErrors{}):
-				return c.JSON(http.StatusBadRequest, response.Error(err))
-			default:
-				return c.JSON(http.StatusInternalServerError, response.Error(err))
-			}
+			return response.MapError(c, err)
 		}
 		return c.JSON(http.StatusOK, response.Success(NewFullProfile(p)))
 	}
@@ -199,18 +187,17 @@ func getFullProfile(client profiles.ProfileServiceClient) echo.HandlerFunc {
 func getRecommendation(client profiles.ProfileServiceClient) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		userID := c.Param("user_id")
+		authID := c.Get(middleware.AuthIDKey).(string)
+		if authID != userID {
+			return c.JSON(http.StatusForbidden, response.Error("Access denied"))
+		}
 		p, err := client.GetRandomProfilePreferredByUser(
 			c.Request().Context(),
 			&profiles.GetRandomProfilePreferredByUserRequest{UserId: userID},
 		)
 
 		if err != nil {
-			switch {
-			case errors.As(err, &validator.ValidationErrors{}):
-				return c.JSON(http.StatusBadRequest, response.Error(err))
-			default:
-				return c.JSON(http.StatusInternalServerError, response.Error(err))
-			}
+			return response.MapError(c, err)
 		}
 		return c.JSON(http.StatusOK, response.Success(NewFullProfile(p)))
 	}
@@ -236,12 +223,7 @@ func getPrompts(client profiles.ProfileServiceClient) echo.HandlerFunc {
 		)
 
 		if err != nil {
-			switch {
-			case errors.As(err, &validator.ValidationErrors{}):
-				return c.JSON(http.StatusBadRequest, response.Error(err))
-			default:
-				return c.JSON(http.StatusInternalServerError, response.Error(err))
-			}
+			return response.MapError(c, err)
 		}
 		return c.JSON(http.StatusOK, response.Success(Prompts(prompts)))
 	}
@@ -263,9 +245,13 @@ func createPrompt(client profiles.ProfileServiceClient) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var reqBody []Prompt
 		userID := c.Param("user_id")
+		authID := c.Get(middleware.AuthIDKey).(string)
+		if authID != userID {
+			return c.JSON(http.StatusForbidden, response.Error("Access denied"))
+		}
 		err := c.Bind(&reqBody)
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, response.Error(err))
+			return c.JSON(http.StatusBadRequest, response.Error(err.Error()))
 		}
 
 		prompts, err := client.AddPrompts(
@@ -277,12 +263,7 @@ func createPrompt(client profiles.ProfileServiceClient) echo.HandlerFunc {
 		)
 
 		if err != nil {
-			switch {
-			case errors.As(err, &validator.ValidationErrors{}):
-				return c.JSON(http.StatusBadRequest, response.Error(err))
-			default:
-				return c.JSON(http.StatusInternalServerError, response.Error(err))
-			}
+			return response.MapError(c, err)
 		}
 		return c.JSON(http.StatusCreated, response.Success(Prompts(prompts)))
 	}
@@ -305,10 +286,14 @@ func updatePrompt(client profiles.ProfileServiceClient) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var reqBody Prompt
 		userID := c.Param("user_id")
+		authID := c.Get(middleware.AuthIDKey).(string)
+		if authID != userID {
+			return c.JSON(http.StatusForbidden, response.Error("Access denied"))
+		}
 		promptID := c.Param("prompt_id")
 		err := c.Bind(&reqBody)
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, response.Error(err))
+			return c.JSON(http.StatusBadRequest, response.Error(err.Error()))
 		}
 
 		prompt, err := client.UpdatePrompt(
@@ -320,24 +305,20 @@ func updatePrompt(client profiles.ProfileServiceClient) echo.HandlerFunc {
 					Question: reqBody.Question,
 					Content:  reqBody.Content,
 					Position: reqBody.Position,
+					Type:     "text",
 				},
 			},
 		)
 
 		if err != nil {
-			switch {
-			case errors.As(err, &validator.ValidationErrors{}):
-				return c.JSON(http.StatusBadRequest, response.Error(err))
-			default:
-				return c.JSON(http.StatusInternalServerError, response.Error(err))
-			}
+			return response.MapError(c, err)
 		}
 		return c.JSON(http.StatusOK, response.Success(NewPrompt(prompt.Prompt)))
 	}
 }
 
 // @Summary Update file prompt
-// @Description 'This can only be done by the logged in user.'
+// @Description 'This can only be done by the logged-in user.'
 // @Tags prompts
 // @ID updateFilePromptByUserId
 // @Accept multipart/form-data
@@ -357,6 +338,10 @@ func updateFilePrompt(client profiles.ProfileServiceClient) echo.HandlerFunc {
 			buf bytes.Buffer
 		)
 		userID := c.Param("user_id")
+		authID := c.Get(middleware.AuthIDKey).(string)
+		if authID != userID {
+			return c.JSON(http.StatusForbidden, response.Error("Access denied"))
+		}
 		promptID := c.Param("prompt_id")
 
 		file, err := c.FormFile("file")
@@ -374,7 +359,7 @@ func updateFilePrompt(client profiles.ProfileServiceClient) echo.HandlerFunc {
 		}(data)
 		_, err = io.Copy(&buf, data)
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, response.Error(err))
+			return c.JSON(http.StatusBadRequest, response.Error(err.Error()))
 		}
 
 		prompt, err := client.UpdateFilePrompt(
@@ -389,12 +374,7 @@ func updateFilePrompt(client profiles.ProfileServiceClient) echo.HandlerFunc {
 		)
 
 		if err != nil {
-			switch {
-			case errors.As(err, &validator.ValidationErrors{}):
-				return c.JSON(http.StatusBadRequest, response.Error(err))
-			default:
-				return c.JSON(http.StatusInternalServerError, response.Error(err))
-			}
+			return response.MapError(c, err)
 		}
 		return c.JSON(http.StatusOK, response.Success(NewPrompt(prompt.Prompt)))
 	}
@@ -420,6 +400,10 @@ func createFilePrompt(client profiles.ProfileServiceClient) echo.HandlerFunc {
 			buf bytes.Buffer
 		)
 		userID := c.Param("user_id")
+		authID := c.Get(middleware.AuthIDKey).(string)
+		if authID != userID {
+			return c.JSON(http.StatusForbidden, response.Error("Access denied"))
+		}
 		file, err := c.FormFile("file")
 		if err != nil {
 			return err
@@ -435,7 +419,7 @@ func createFilePrompt(client profiles.ProfileServiceClient) echo.HandlerFunc {
 		}(data)
 		_, err = io.Copy(&buf, data)
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, response.Error(err))
+			return c.JSON(http.StatusBadRequest, response.Error(err.Error()))
 		}
 
 		prompt, err := client.AddFilePrompt(
@@ -449,12 +433,7 @@ func createFilePrompt(client profiles.ProfileServiceClient) echo.HandlerFunc {
 		)
 
 		if err != nil {
-			switch {
-			case errors.As(err, &validator.ValidationErrors{}):
-				return c.JSON(http.StatusBadRequest, response.Error(err))
-			default:
-				return c.JSON(http.StatusInternalServerError, response.Error(err))
-			}
+			return response.MapError(c, err)
 		}
 		return c.JSON(http.StatusOK, response.Success(NewPrompt(prompt.Prompt)))
 	}
