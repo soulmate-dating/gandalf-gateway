@@ -4,7 +4,7 @@ import "github.com/soulmate-dating/gandalf-gateway/internal/app/clients/profiles
 
 // Profile represents a user's profile.
 type Profile struct {
-	UserID           string `json:"user_id,omitempty"`
+	UserID           string `json:"user_id,omitempty" example:"d2095501-4295-4cb2-b616-94cd2dc5bfb1"`
 	FirstName        string `json:"first_name" binding:"required" example:"Elon"`
 	LastName         string `json:"last_name" binding:"required" example:"Musk"`
 	BirthDate        string `json:"birth_date" binding:"required" example:"1971-06-28" format:"date" pattern:"^\\d{4}-\\d{2}-\\d{2}$"`
@@ -17,7 +17,7 @@ type Profile struct {
 	Location         string `json:"location,omitempty"`
 	DrinksAlcohol    string `json:"drinks_alcohol" binding:"required" example:"sometimes"`
 	Smokes           string `json:"smokes" binding:"required" example:"no"`
-	ProfilePic       string `json:"profile_pic,omitempty"`
+	ProfilePic       string `json:"profile_pic,omitempty" example:"http://example/profile_pic"`
 }
 
 // Prompt represents a user's prompt.
