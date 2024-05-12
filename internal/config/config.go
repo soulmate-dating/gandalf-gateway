@@ -8,26 +8,26 @@ import (
 )
 
 type Postgres struct {
-	Host              string        `env:"POSTGRES_HOST" example:"localhost"`
+	Host              string        `env:"POSTGRES_HOST,required" example:"localhost"`
 	Port              int           `env:"POSTGRES_PORT" envDefault:"5432"`
-	User              string        `env:"POSTGRES_USER" example:"glimpse"`
-	Password          string        `env:"POSTGRES_PASSWORD" example:"password"`
-	Database          string        `env:"POSTGRES_DB" example:"glimpse"`
+	User              string        `env:"POSTGRES_USER,required" example:"glimpse"`
+	Password          string        `env:"POSTGRES_PASSWORD,required" example:"password"`
+	Database          string        `env:"POSTGRES_DB,required" example:"glimpse"`
 	SSLMode           string        `env:"POSTGRES_SSL_MODE" envDefault:"disable"`
 	ConnectionTimeout time.Duration `env:"POSTGRES_CONNECTION_TIMEOUT" envDefault:"60s"`
 }
 
 type API struct {
-	Address string `env:"API_ADDRESS" envDefault:"localhost:8080"`
+	Address string `env:"API_ADDRESS,required" example:"localhost:8080"`
 }
 
 type Profiles struct {
-	Address   string `env:"PROFILES_ADDRESS" envDefault:"localhost:8081"`
+	Address   string `env:"PROFILES_ADDRESS,required" example:"localhost:8081"`
 	EnableTLS bool   `env:"PROFILES_ENABLE_TLS" envDefault:"false"`
 }
 
 type Auth struct {
-	Address   string `env:"AUTH_ADDRESS" envDefault:"localhost:8082"`
+	Address   string `env:"AUTH_ADDRESS,required" example:"localhost:8082"`
 	EnableTLS bool   `env:"AUTH_ENABLE_TLS" envDefault:"false"`
 }
 
