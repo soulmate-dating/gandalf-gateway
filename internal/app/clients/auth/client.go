@@ -19,7 +19,7 @@ func NewServiceClient(cfg config.Config) (c AuthServiceClient, err error) {
 		cc, err = grpc.Dial(cfg.Address, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	}
 	if err != nil {
-		return nil, fmt.Errorf("dialing media service: %w", err)
+		return nil, fmt.Errorf("dialing auth service: %w", err)
 	}
 	return NewAuthServiceClient(cc), nil
 }

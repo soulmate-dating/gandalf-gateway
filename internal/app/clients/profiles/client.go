@@ -2,6 +2,7 @@ package profiles
 
 import (
 	"crypto/tls"
+	"fmt"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -18,7 +19,7 @@ func NewServiceClient(cfg config.Config) (c ProfileServiceClient, err error) {
 		cc, err = grpc.Dial(cfg.Address, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	}
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("dialing profiles service: %w", err)
 	}
 	return NewProfileServiceClient(cc), nil
 }
