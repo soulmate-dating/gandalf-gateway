@@ -4,11 +4,7 @@ import (
 	"context"
 	_ "github.com/soulmate-dating/gandalf-gateway/docs"
 	"github.com/soulmate-dating/gandalf-gateway/internal/app"
-	"github.com/soulmate-dating/gandalf-gateway/internal/graceful"
-	"github.com/soulmate-dating/gandalf-gateway/internal/ports/http"
-	"golang.org/x/sync/errgroup"
-	"os"
-
+	"github.com/soulmate-dating/gandalf-gateway/internal/config"
 	"log"
 )
 
@@ -19,19 +15,11 @@ const (
 func main() {
 	ctx := context.Background()
 
-	serviceLocator := app.NewServiceLocator()
-
-	httpServer := http.NewServer(httpPort, serviceLocator)
-
-	eg, ctx := errgroup.WithContext(ctx)
-
-	sigQuit := make(chan os.Signal, 1)
-	eg.Go(graceful.CaptureSignal(ctx, sigQuit))
-	// run http server
-	eg.Go(http.RunServer(ctx, httpServer))
-
-	if err := eg.Wait(); err != nil {
-		log.Printf("gracefully shutting down the servers: %s\n", err.Error())
+	cfg, err := config.Load()
+	if err != nil {
+		log.Fatalf("failed to load config: %v", err)
 	}
-	log.Println("servers were successfully shutdown")
+
+	svc := app.New(ctx, cfg)
+	app.Run(ctx, cfg, svc)
 }
