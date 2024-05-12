@@ -2,17 +2,11 @@ package app
 
 import (
 	"context"
-	"log"
-	"os"
-
-	"golang.org/x/sync/errgroup"
-
 	"github.com/soulmate-dating/gandalf-gateway/internal/app/clients/auth"
 	clientcfg "github.com/soulmate-dating/gandalf-gateway/internal/app/clients/config"
 	"github.com/soulmate-dating/gandalf-gateway/internal/app/clients/profiles"
 	"github.com/soulmate-dating/gandalf-gateway/internal/config"
-	"github.com/soulmate-dating/gandalf-gateway/internal/graceful"
-	"github.com/soulmate-dating/gandalf-gateway/internal/ports/http"
+	"log"
 )
 
 type ServiceLocator interface {
@@ -35,8 +29,8 @@ func (l *locator) Auth() auth.AuthServiceClient {
 
 func New(_ context.Context, cfg config.Config) ServiceLocator {
 	authServiceClient, err := auth.NewServiceClient(clientcfg.Config{
-		Address: cfg.Profiles.Address,
-		UseSSL:  cfg.Profiles.EnableTLS,
+		Address: cfg.Auth.Address,
+		UseSSL:  cfg.Auth.EnableTLS,
 	})
 	if err != nil {
 		log.Fatalf("could not connect to auth service: %s", err.Error())
@@ -52,17 +46,4 @@ func New(_ context.Context, cfg config.Config) ServiceLocator {
 		authServiceClient:    authServiceClient,
 		profileServiceClient: profileServiceClient,
 	}
-}
-
-func Run(ctx context.Context, cfg config.Config, serviceLocator ServiceLocator) {
-	httpServer := http.NewServer(cfg.API.Address, serviceLocator)
-
-	eg, ctx := errgroup.WithContext(ctx)
-	sigQuit := make(chan os.Signal, 1)
-	eg.Go(graceful.CaptureSignal(ctx, sigQuit))
-	eg.Go(http.RunServer(ctx, httpServer))
-	if err := eg.Wait(); err != nil {
-		log.Printf("gracefully shutting down the servers: %s\n", err.Error())
-	}
-	log.Println("servers were successfully shutdown")
 }

@@ -5,11 +5,8 @@ import (
 	_ "github.com/soulmate-dating/gandalf-gateway/docs"
 	"github.com/soulmate-dating/gandalf-gateway/internal/app"
 	"github.com/soulmate-dating/gandalf-gateway/internal/config"
+	"github.com/soulmate-dating/gandalf-gateway/internal/ports/http"
 	"log"
-)
-
-const (
-	httpPort = ":3000"
 )
 
 func main() {
@@ -21,5 +18,5 @@ func main() {
 	}
 
 	svc := app.New(ctx, cfg)
-	app.Run(ctx, cfg, svc)
+	http.Run(ctx, cfg, svc)
 }
