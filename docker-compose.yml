@@ -23,6 +23,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    environment:
+      - API_ADDRESS=gateway:3000
+      - PROFILES_ADDRESS=profiles:8080
+      - PROFILES_ENABLE_TLS=false
+      - AUTH_ADDRESS=auth:8081
+      - AUTH_ENABLE_TLS=false
     ports:
       - "3000:3000"
     depends_on:
@@ -35,6 +41,19 @@ services:
   auth:
     container_name: auth
     image: maxage/auth:master
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=glimpse
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=glimpse
+      - POSTGRES_SSL_MODE=disable
+      - API_ADDRESS=auth:8081
+      - JWT_ACCESS_SECRET=secret
+      - JWT_ACCESS_EXPIRATION=24h
+      - JWT_REFRESH_SECRET=refresh_secret
+      - JWT_REFRESH_EXPIRATION=720h
+      - JWT_ISSUER=glimpse
     ports:
       - "8081:8081"
     depends_on:
@@ -47,6 +66,15 @@ services:
   profiles:
     container_name: profiles
     image: maxage/profiles:master
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=glimpse
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=glimpse
+      - POSTGRES_SSL_MODE=disable
+      - API_ADDRESS=profiles:8080
+      - MEDIA_ADDRESS=media:8082
     ports:
       - "8080:8080"
     depends_on:
@@ -59,6 +87,14 @@ services:
   media:
     container_name: media
     image: maxage/media:master
+    environment:
+      - API_ADDRESS=media:8082
+      - S3_ADDRESS=minio:9000
+      - S3_ACCESS_KEY=accesskey
+      - S3_SECRET_KEY=secretkey
+      - S3_BUCKET=media
+      - S3_POLICY_FILE=./s3-policy.json
+      - API_PUBLIC_HOST=localhost
     ports:
       - "8082:8082"
     depends_on:
@@ -88,6 +124,7 @@ services:
       - postgres
 
   minio:
+    container_name: minio
     image: minio/minio
     ports:
       - "9000:9000"

@@ -13,9 +13,9 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func NewServer(port string, a app.ServiceLocator) *http.Server {
+func NewServer(addr string, a app.ServiceLocator) *http.Server {
 	server := echo.New()
-	s := &http.Server{Addr: port, Handler: server}
+	s := &http.Server{Addr: addr, Handler: server}
 
 	server.Use(middleware.LoggerMiddleWare)
 	server.Use(middleware.RecoveryMiddleWare)

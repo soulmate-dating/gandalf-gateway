@@ -1,14 +1,12 @@
 package app
 
 import (
-	"fmt"
+	"context"
 	"github.com/soulmate-dating/gandalf-gateway/internal/app/clients/auth"
+	clientcfg "github.com/soulmate-dating/gandalf-gateway/internal/app/clients/config"
 	"github.com/soulmate-dating/gandalf-gateway/internal/app/clients/profiles"
+	"github.com/soulmate-dating/gandalf-gateway/internal/config"
 	"log"
-)
-
-var (
-	ErrForbidden = fmt.Errorf("forbidden")
 )
 
 type ServiceLocator interface {
@@ -29,12 +27,18 @@ func (l *locator) Auth() auth.AuthServiceClient {
 	return l.authServiceClient
 }
 
-func NewServiceLocator() ServiceLocator {
-	authServiceClient, err := auth.NewServiceClient()
+func New(_ context.Context, cfg config.Config) ServiceLocator {
+	authServiceClient, err := auth.NewServiceClient(clientcfg.Config{
+		Address: cfg.Auth.Address,
+		UseSSL:  cfg.Auth.EnableTLS,
+	})
 	if err != nil {
 		log.Fatalf("could not connect to auth service: %s", err.Error())
 	}
-	profileServiceClient, err := profiles.NewServiceClient()
+	profileServiceClient, err := profiles.NewServiceClient(clientcfg.Config{
+		Address: cfg.Profiles.Address,
+		UseSSL:  cfg.Profiles.EnableTLS,
+	})
 	if err != nil {
 		log.Fatalf("could not connect to profiles service: %s", err.Error())
 	}
