@@ -3,7 +3,7 @@ version: '3.9'
 services:
 
   glimpse-api:
-    container_name: glimpse_3
+    container_name: glimpse
     image: nginx:stable-alpine
     ports:
       - "80:80"
@@ -19,7 +19,7 @@ services:
       - media
 
   gateway:
-    container_name: gateway_3
+    container_name: gateway
     build:
       context: .
       dockerfile: Dockerfile
@@ -39,8 +39,8 @@ services:
       - gateway
 
   auth:
-    container_name: auth_3
-    image: maxage/auth:pr-10
+    container_name: auth
+    image: maxage/auth:master
     environment:
       - POSTGRES_HOST=postgres
       - POSTGRES_PORT=5432
@@ -64,8 +64,8 @@ services:
       - gateway
 
   profiles:
-    container_name: profiles_3
-    image: maxage/profiles:pr-15
+    container_name: profiles
+    image: maxage/profiles:master
     environment:
       - POSTGRES_HOST=postgres
       - POSTGRES_PORT=5432
@@ -85,8 +85,8 @@ services:
       - gateway
 
   media:
-    container_name: media_3
-    image: maxage/media:pr-3
+    container_name: media
+    image: maxage/media:master
     environment:
       - API_ADDRESS=media:8082
       - S3_ADDRESS=minio:9000
@@ -105,7 +105,7 @@ services:
       - gateway
 
   postgres:
-    container_name: postgres_3
+    container_name: postgres
     image: postgres:latest
     environment:
       POSTGRES_DATABASE: glimpse
@@ -124,7 +124,7 @@ services:
       - postgres
 
   minio:
-    container_name: minio_3
+    container_name: minio
     image: minio/minio
     ports:
       - "9000:9000"
