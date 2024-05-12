@@ -874,7 +874,7 @@ const docTemplate = `{
         },
         "/users/{user_id}/prompts/file/{prompt_id}": {
             "put": {
-                "description": "'This can only be done by the logged in user.'",
+                "description": "'This can only be done by the logged-in user.'",
                 "consumes": [
                     "multipart/form-data"
                 ],
@@ -1006,15 +1006,12 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Create user prompts",
+                        "description": "Create user text prompt",
                         "name": "body",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/internal_ports_http_api_profiles.Prompt"
-                            }
+                            "$ref": "#/definitions/internal_ports_http_api_profiles.Prompt"
                         }
                     }
                 ],
@@ -1030,10 +1027,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/internal_ports_http_api_profiles.Prompt"
-                                            }
+                                            "$ref": "#/definitions/internal_ports_http_api_profiles.Prompt"
                                         },
                                         "error": {
                                             "type": "object"

@@ -631,7 +631,7 @@ paths:
     put:
       consumes:
       - multipart/form-data
-      description: '''This can only be done by the logged in user.'''
+      description: '''This can only be done by the logged-in user.'''
       operationId: updateFilePromptByUserId
       parameters:
       - description: Bearer <access_token>
@@ -709,14 +709,12 @@ paths:
         name: user_id
         required: true
         type: string
-      - description: Create user prompts
+      - description: Create user text prompt
         in: body
         name: body
         required: true
         schema:
-          items:
-            $ref: '#/definitions/internal_ports_http_api_profiles.Prompt'
-          type: array
+          $ref: '#/definitions/internal_ports_http_api_profiles.Prompt'
       produces:
       - application/json
       responses:
@@ -727,9 +725,7 @@ paths:
             - $ref: '#/definitions/response.Response'
             - properties:
                 data:
-                  items:
-                    $ref: '#/definitions/internal_ports_http_api_profiles.Prompt'
-                  type: array
+                  $ref: '#/definitions/internal_ports_http_api_profiles.Prompt'
                 error:
                   type: object
               type: object

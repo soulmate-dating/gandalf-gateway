@@ -237,13 +237,13 @@ func getPrompts(client profiles.ProfileServiceClient) echo.HandlerFunc {
 // @Produce json
 // @Param Authorization header string true "Bearer <access_token>" "Authorization header"
 // @Param user_id path string true "User id"
-// @Param body body []Prompt true "Create user prompts"
-// @Success 201 {object} response.Response{data=[]Prompt,error=nil} "Prompts created"
+// @Param body body Prompt true "Create user text prompt"
+// @Success 201 {object} response.Response{data=Prompt,error=nil} "Prompts created"
 // @Failure 500 {object} response.Response{data=nil,error=string} "Internal server error"
 // @Router /users/{user_id}/prompts/text [post]
 func createPrompt(client profiles.ProfileServiceClient) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var reqBody []Prompt
+		var reqBody Prompt
 		userID := c.Param("user_id")
 		authID := c.Get(middleware.AuthIDKey).(string)
 		if authID != userID {
@@ -258,14 +258,13 @@ func createPrompt(client profiles.ProfileServiceClient) echo.HandlerFunc {
 			c.Request().Context(),
 			&profiles.AddPromptsRequest{
 				UserId:  userID,
-				Prompts: mapPrompts(reqBody),
+				Prompts: mapPrompts([]Prompt{reqBody}),
 			},
 		)
-
 		if err != nil {
 			return response.MapError(c, err)
 		}
-		return c.JSON(http.StatusCreated, response.Success(Prompts(prompts)))
+		return c.JSON(http.StatusCreated, response.Success(NewPrompt(prompts.Prompts[0])))
 	}
 }
 
