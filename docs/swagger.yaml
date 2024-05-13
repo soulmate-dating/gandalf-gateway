@@ -88,11 +88,17 @@ definitions:
       preferred_partner:
         example: woman
         type: string
+      profile_pic:
+        example: http://example/profile_pic
+        type: string
       sex:
         example: man
         type: string
       smokes:
         example: "no"
+        type: string
+      user_id:
+        example: d2095501-4295-4cb2-b616-94cd2dc5bfb1
         type: string
     required:
     - birth_date

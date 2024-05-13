@@ -1290,6 +1290,10 @@ const docTemplate = `{
                     "type": "string",
                     "example": "woman"
                 },
+                "profile_pic": {
+                    "type": "string",
+                    "example": "http://example/profile_pic"
+                },
                 "sex": {
                     "type": "string",
                     "example": "man"
@@ -1297,6 +1301,10 @@ const docTemplate = `{
                 "smokes": {
                     "type": "string",
                     "example": "no"
+                },
+                "user_id": {
+                    "type": "string",
+                    "example": "d2095501-4295-4cb2-b616-94cd2dc5bfb1"
                 }
             }
         },

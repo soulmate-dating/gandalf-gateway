@@ -4,7 +4,8 @@ import "github.com/soulmate-dating/gandalf-gateway/internal/app/clients/profiles
 
 // Profile represents a user's profile.
 type Profile struct {
-	FirstName        string `json:"first_name,omitempty" binding:"required" example:"Elon"`
+	UserID           string `json:"user_id,omitempty" example:"d2095501-4295-4cb2-b616-94cd2dc5bfb1"`
+	FirstName        string `json:"first_name" binding:"required" example:"Elon"`
 	LastName         string `json:"last_name" binding:"required" example:"Musk"`
 	BirthDate        string `json:"birth_date" binding:"required" example:"1971-06-28" format:"date" pattern:"^\\d{4}-\\d{2}-\\d{2}$"`
 	Sex              string `json:"sex" binding:"required" example:"man"`
@@ -16,6 +17,7 @@ type Profile struct {
 	Location         string `json:"location,omitempty"`
 	DrinksAlcohol    string `json:"drinks_alcohol" binding:"required" example:"sometimes"`
 	Smokes           string `json:"smokes" binding:"required" example:"no"`
+	ProfilePic       string `json:"profile_pic,omitempty" example:"http://example/profile_pic"`
 }
 
 // Prompt represents a user's prompt.
@@ -50,6 +52,7 @@ func mapPrompts(prompts []Prompt) []*profiles.Prompt {
 func NewProfile(p *profiles.ProfileResponse) *Profile {
 	info := p.PersonalInfo
 	return &Profile{
+		UserID:           p.Id,
 		FirstName:        info.FirstName,
 		LastName:         info.LastName,
 		BirthDate:        info.BirthDate,
@@ -62,6 +65,7 @@ func NewProfile(p *profiles.ProfileResponse) *Profile {
 		Location:         info.Location,
 		DrinksAlcohol:    info.DrinksAlcohol,
 		Smokes:           info.Smokes,
+		ProfilePic:       info.ProfilePicLink,
 	}
 }
 
@@ -78,6 +82,7 @@ func NewPrompt(p *profiles.Prompt) Prompt {
 func NewFullProfile(response *profiles.FullProfileResponse) *FullProfile {
 	info := response.PersonalInfo
 	profile := Profile{
+		UserID:           response.UserId,
 		FirstName:        info.FirstName,
 		LastName:         info.LastName,
 		BirthDate:        info.BirthDate,
@@ -90,6 +95,7 @@ func NewFullProfile(response *profiles.FullProfileResponse) *FullProfile {
 		Location:         info.Location,
 		DrinksAlcohol:    info.DrinksAlcohol,
 		Smokes:           info.Smokes,
+		ProfilePic:       info.ProfilePicLink,
 	}
 	prompts := make([]Prompt, len(response.Prompts))
 	for i, p := range response.Prompts {
