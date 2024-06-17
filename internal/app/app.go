@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 	"github.com/soulmate-dating/gandalf-gateway/internal/app/clients/auth"
-	clientcfg "github.com/soulmate-dating/gandalf-gateway/internal/app/clients/config"
+	clientcfg "github.com/soulmate-dating/gandalf-gateway/internal/app/clients/common"
 	"github.com/soulmate-dating/gandalf-gateway/internal/app/clients/profiles"
 	"github.com/soulmate-dating/gandalf-gateway/internal/config"
 	"log"

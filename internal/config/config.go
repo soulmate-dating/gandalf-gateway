@@ -20,9 +20,10 @@ type Auth struct {
 }
 
 type Config struct {
-	API      API
-	Profiles Profiles
-	Auth     Auth
+	API       API
+	Profiles  Profiles
+	Auth      Auth
+	Namespace string `env:"NAMESPACE,required" envDefault:"gateway"`
 }
 
 func Load() (Config, error) {

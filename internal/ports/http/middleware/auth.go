@@ -24,17 +24,22 @@ func InitAuthMiddleWare(client auth.AuthServiceClient) echo.MiddlewareFunc {
 		return func(c echo.Context) error {
 			authHeader := c.Request().Header.Get("Authorization")
 			if !strings.HasPrefix(authHeader, BearerPrefix) {
-				return c.JSON(http.StatusForbidden, response.Error(ErrWrongAuthHeaderFormat.Error()))
+				return c.JSON(
+					http.StatusForbidden,
+					response.Error(ErrWrongAuthHeaderFormat.Error()),
+				)
 			}
 			accessToken := authHeader[len(BearerPrefix):]
 			if accessToken == "" {
-				return c.JSON(http.StatusForbidden, response.Error(ErrorMissingAccessToken.Error()))
+				return c.JSON(
+					http.StatusForbidden,
+					response.Error(ErrorMissingAccessToken.Error()),
+				)
 			}
 			res, err := client.Validate(
 				c.Request().Context(),
 				&auth.ValidateRequest{AccessToken: accessToken},
 			)
-
 			if err != nil {
 				return response.MapError(c, err)
 			}

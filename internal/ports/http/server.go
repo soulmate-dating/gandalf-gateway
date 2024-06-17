@@ -4,19 +4,27 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/soulmate-dating/gandalf-gateway/internal/app"
-	"github.com/soulmate-dating/gandalf-gateway/internal/ports/http/middleware"
 	"log"
 	"net/http"
 	"time"
 
+	echoPrometheus "github.com/globocom/echo-prometheus"
 	"github.com/labstack/echo/v4"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+
+	"github.com/soulmate-dating/gandalf-gateway/internal/app"
+	"github.com/soulmate-dating/gandalf-gateway/internal/ports/http/middleware"
 )
 
-func NewServer(addr string, a app.ServiceLocator) *http.Server {
+func NewServer(addr string, a app.ServiceLocator, namespace string) *http.Server {
 	server := echo.New()
 	s := &http.Server{Addr: addr, Handler: server}
 
+	configMetrics := echoPrometheus.NewConfig()
+	configMetrics.Namespace = namespace
+
+	server.Use(echoPrometheus.MetricsMiddlewareWithConfig(configMetrics))
+	server.GET("/metrics", echo.WrapHandler(promhttp.Handler()))
 	server.Use(middleware.LoggerMiddleWare)
 	server.Use(middleware.RecoveryMiddleWare)
 
