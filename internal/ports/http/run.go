@@ -13,7 +13,7 @@ import (
 )
 
 func Run(ctx context.Context, cfg config.Config, serviceLocator app.ServiceLocator) {
-	httpServer := NewServer(cfg.API.Address, serviceLocator)
+	httpServer := NewServer(cfg.API.Address, serviceLocator, cfg.Namespace)
 
 	eg, ctx := errgroup.WithContext(ctx)
 	sigQuit := make(chan os.Signal, 1)
