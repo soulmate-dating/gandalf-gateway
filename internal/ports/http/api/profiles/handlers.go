@@ -13,6 +13,8 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+const AccessDeniedMessage = "Access denied"
+
 var ErrParameterNotFound = errors.New("necessary parameters not provided")
 
 // @Summary Create user profile
@@ -33,7 +35,7 @@ func createProfile(client profiles.ProfileServiceClient) echo.HandlerFunc {
 		userID := c.Param("user_id")
 		authID := c.Get(middleware.AuthIDKey).(string)
 		if authID != userID {
-			return c.JSON(http.StatusForbidden, response.Error("Access denied"))
+			return c.JSON(http.StatusForbidden, response.Error(AccessDeniedMessage))
 		}
 		err := c.Bind(&reqBody)
 		if err != nil {
@@ -112,7 +114,7 @@ func updateProfile(client profiles.ProfileServiceClient) echo.HandlerFunc {
 		userID := c.Param("user_id")
 		authID := c.Get(middleware.AuthIDKey).(string)
 		if authID != userID {
-			return c.JSON(http.StatusForbidden, response.Error("Access denied"))
+			return c.JSON(http.StatusForbidden, response.Error(AccessDeniedMessage))
 		}
 		err := c.Bind(&reqBody)
 		if err != nil {
@@ -189,7 +191,7 @@ func getRecommendation(client profiles.ProfileServiceClient) echo.HandlerFunc {
 		userID := c.Param("user_id")
 		authID := c.Get(middleware.AuthIDKey).(string)
 		if authID != userID {
-			return c.JSON(http.StatusForbidden, response.Error("Access denied"))
+			return c.JSON(http.StatusForbidden, response.Error(AccessDeniedMessage))
 		}
 		p, err := client.GetRandomProfilePreferredByUser(
 			c.Request().Context(),
@@ -247,7 +249,7 @@ func createPrompt(client profiles.ProfileServiceClient) echo.HandlerFunc {
 		userID := c.Param("user_id")
 		authID := c.Get(middleware.AuthIDKey).(string)
 		if authID != userID {
-			return c.JSON(http.StatusForbidden, response.Error("Access denied"))
+			return c.JSON(http.StatusForbidden, response.Error(AccessDeniedMessage))
 		}
 		err := c.Bind(&reqBody)
 		if err != nil {
@@ -287,7 +289,7 @@ func updatePrompt(client profiles.ProfileServiceClient) echo.HandlerFunc {
 		userID := c.Param("user_id")
 		authID := c.Get(middleware.AuthIDKey).(string)
 		if authID != userID {
-			return c.JSON(http.StatusForbidden, response.Error("Access denied"))
+			return c.JSON(http.StatusForbidden, response.Error(AccessDeniedMessage))
 		}
 		promptID := c.Param("prompt_id")
 		err := c.Bind(&reqBody)
@@ -339,7 +341,7 @@ func updateFilePrompt(client profiles.ProfileServiceClient) echo.HandlerFunc {
 		userID := c.Param("user_id")
 		authID := c.Get(middleware.AuthIDKey).(string)
 		if authID != userID {
-			return c.JSON(http.StatusForbidden, response.Error("Access denied"))
+			return c.JSON(http.StatusForbidden, response.Error(AccessDeniedMessage))
 		}
 		promptID := c.Param("prompt_id")
 
@@ -401,7 +403,7 @@ func createFilePrompt(client profiles.ProfileServiceClient) echo.HandlerFunc {
 		userID := c.Param("user_id")
 		authID := c.Get(middleware.AuthIDKey).(string)
 		if authID != userID {
-			return c.JSON(http.StatusForbidden, response.Error("Access denied"))
+			return c.JSON(http.StatusForbidden, response.Error(AccessDeniedMessage))
 		}
 		file, err := c.FormFile("file")
 		if err != nil {
@@ -435,5 +437,38 @@ func createFilePrompt(client profiles.ProfileServiceClient) echo.HandlerFunc {
 			return response.MapError(c, err)
 		}
 		return c.JSON(http.StatusOK, response.Success(NewPrompt(prompt.Prompt)))
+	}
+}
+
+// @Summary Delete prompt by id
+// @Description 'This can only be done by the logged in user.'
+// @Tags prompts
+// @ID deletePromptByUserId
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer <access_token>" "Authorization header"
+// @Param user_id path string true "User id"
+// @Param prompt_id path string true "Prompt id"
+// @Success 200 {object} response.Response{data=Prompt,error=nil} "Prompt deleted"
+// @Failure 412 {object} response.Response{data=nil,error=string} "Cannot delete Prompt because it is a profile picture"
+// @Failure 500 {object} response.Response{data=nil,error=string} "Internal server error"
+// @Router /users/{user_id}/prompts/text/{prompt_id} [delete]
+func deletePrompt(client profiles.ProfileServiceClient) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		userID := c.Param("user_id")
+		authID := c.Get(middleware.AuthIDKey).(string)
+		if authID != userID {
+			return c.JSON(http.StatusForbidden, response.Error(AccessDeniedMessage))
+		}
+		promptID := c.Param("prompt_id")
+		p, err := client.DeletePrompt(
+			c.Request().Context(),
+			&profiles.DeletePromptRequest{UserId: userID, Id: promptID},
+		)
+
+		if err != nil {
+			return response.MapError(c, err)
+		}
+		return c.JSON(http.StatusOK, response.Success(p))
 	}
 }

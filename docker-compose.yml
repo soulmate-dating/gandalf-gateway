@@ -54,6 +54,7 @@ services:
       - JWT_REFRESH_SECRET=refresh_secret
       - JWT_REFRESH_EXPIRATION=720h
       - JWT_ISSUER=glimpse
+      - METRICS_ADDRESS=auth:8087
     ports:
       - "8081:8081"
     depends_on:
@@ -75,6 +76,7 @@ services:
       - POSTGRES_SSL_MODE=disable
       - API_ADDRESS=profiles:8080
       - MEDIA_ADDRESS=media:8082
+      - METRICS_ADDRESS=profiles:8088
     ports:
       - "8080:8080"
     depends_on:
@@ -95,6 +97,7 @@ services:
       - S3_BUCKET=media
       - S3_POLICY_FILE=./s3-policy.json
       - API_PUBLIC_HOST=localhost
+      - METRICS_ADDRESS=media:8088
     ports:
       - "8082:8082"
     depends_on:
