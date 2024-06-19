@@ -750,6 +750,66 @@ paths:
       tags:
       - prompts
   /users/{user_id}/prompts/text/{prompt_id}:
+    delete:
+      consumes:
+      - application/json
+      description: '''This can only be done by the logged in user.'''
+      operationId: deletePromptByUserId
+      parameters:
+      - description: Bearer <access_token>
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Prompt id
+        in: path
+        name: prompt_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Prompt deleted
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_ports_http_api_profiles.Prompt'
+                error:
+                  type: object
+              type: object
+        "412":
+          description: Cannot delete Prompt because it is a profile picture
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+                error:
+                  type: string
+              type: object
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+                error:
+                  type: string
+              type: object
+      summary: Delete prompt by id
+      tags:
+      - prompts
     put:
       consumes:
       - application/json
